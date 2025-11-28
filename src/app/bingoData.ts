@@ -1,5 +1,9 @@
 export const bingoData = [
     "Ta det på mail",
+    "ja, presis",
+    "Today is my sentry day",
+    "Du er muta",
+    "Kan du høre meg?",
     "Sparre litt",
     "Flagge det",
     "Løfte i flokk",

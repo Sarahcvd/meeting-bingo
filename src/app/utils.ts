@@ -1,3 +1,4 @@
+import { FOUR_CORNERS, PLUS_PATTERN, SINGLE_LINE, WIN_PATTERNS, X_PATTERN } from './constants';
 import { BingoCell } from './types';
 
 export const shufflePhrases = (array: string[]): string[] => {
@@ -39,11 +40,38 @@ export const createBingoGrid = (phrases: string[]): BingoCell[] => {
   return grid;
 }
 
-export const checkWin = (grid: BingoCell[], winningLines: number[][]): boolean => {
-  for (const line of winningLines) {
-    if (line.every(index => grid[index]?.selected)) {
+export const checkWin = (grid: BingoCell[], winningLines: WIN_PATTERNS): boolean => {
+  if (winningLines === WIN_PATTERNS.SINGLE_LINE) {
+    for (const line of SINGLE_LINE) {
+      if (line.every(index => grid[index]?.selected)) {
+        return true;
+      }
+    }
+  }
+  
+  if (winningLines === WIN_PATTERNS.BLACKOUT) {
+    if (grid.every(cell => cell.selected)) {
       return true;
     }
   }
+
+  if (winningLines === WIN_PATTERNS.FOUR_CORNERS) {
+    if (FOUR_CORNERS.every(index => grid[index]?.selected)) {
+      return true;
+    }
+  }
+
+  if (winningLines === WIN_PATTERNS.X_PATTERN) {
+    if (X_PATTERN.every(index => grid[index]?.selected)) {
+      return true;
+    }
+  }
+
+  if (winningLines === WIN_PATTERNS.PLUS_PATTERN) {
+    if (PLUS_PATTERN.every(index => grid[index]?.selected)) {
+      return true;
+    }
+  }
+  
   return false;
 }

@@ -4,13 +4,14 @@ import { useEffect, useState } from "react";
 import { bingoData } from "./bingoData";
 import { BingoCell } from "./types";
 import { createBingoGrid, checkWin } from "./utils";
-import { winningLines } from "./constants";
+import { WIN_PATTERNS, SINGLE_LINE } from "./constants";
 import { triggerConfetti } from "./confettiUtils";
 import BingoGrid from "./components/BingoGrid";
 
 export default function Home() {
   const [grid, setGrid] = useState<BingoCell[]>([]);
   const [hasWon, setHasWon] = useState(false);
+  const [mode, setMode] = useState<WIN_PATTERNS>(WIN_PATTERNS.SINGLE_LINE);
 
   useEffect(() => {
     const initialGrid = createBingoGrid(bingoData);
@@ -35,11 +36,11 @@ export default function Home() {
   };
 
   useEffect(() => {
-    if (grid.length > 0 && checkWin(grid, winningLines) && !hasWon) {
+    if (grid.length > 0 && checkWin(grid, mode) && !hasWon) {
       setHasWon(true);
       triggerConfetti();
     }
-  }, [grid, hasWon]);
+  }, [grid, hasWon, mode]);
 
   return (
     <main className="min-h-screen p-4 sm:p-8 md:p-12 flex flex-col items-center justify-center relative overflow-hidden">
@@ -62,23 +63,58 @@ export default function Home() {
           </p>
         </div>
 
-        <div className="flex justify-center">
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
           <button
             onClick={generateNewCard}
             className="px-8 py-4 bg-linear-to-r from-yellow-400 via-pink-400 to-purple-400 text-white rounded-2xl font-bold text-lg shadow-2xl hover:shadow-3xl hover:scale-110 transition-all duration-300 hover:rotate-3"
           >
             🎲 New Card
           </button>
+
+          <div className="flex items-center gap-3">
+            <label className="text-white/90 font-semibold text-sm drop-shadow-lg">
+              Game Mode:
+            </label>
+            <select
+              value={mode}
+              onChange={(e) => {
+                setMode(e.target.value as WIN_PATTERNS);
+                generateNewCard();
+              }}
+              className="px-6 py-3 bg-white/90 backdrop-blur-md rounded-xl text-purple-900 font-bold border-2 border-white/50 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300 cursor-pointer"
+            >
+              {Object.values(WIN_PATTERNS).map((pattern) => (
+                <option key={pattern} value={pattern} className="font-semibold">
+                  {pattern.replace(/_/g, ' ')}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
 
         <div className="bg-white/20 backdrop-blur-md rounded-3xl p-8 shadow-2xl border-2 border-white/30">
+          <div className="mb-6 text-center">
+            <div className="inline-flex items-center gap-2 px-6 py-3 bg-white/30 backdrop-blur-sm rounded-2xl border-2 border-white/40 shadow-lg">
+              <span className="text-2xl">🎯</span>
+              <span className="text-white font-bold text-lg drop-shadow-lg">
+                {mode.replace(/_/g, ' ')}
+              </span>
+            </div>
+          </div>
           <BingoGrid grid={grid} onCellClick={handleCellClick} />
         </div>
 
         <div className="text-center">
-          <p className="text-white/80 text-sm font-medium">
-            Get 5 in a row (horizontal, vertical, or diagonal) to win! 🏆
-          </p>
+          <div className="inline-flex items-center gap-2 px-5 py-2.5 bg-white/10 backdrop-blur-sm rounded-xl border border-white/20">
+            <span className="text-xl">🏆</span>
+            <p className="text-white/90 text-sm font-semibold">
+              {mode === WIN_PATTERNS.SINGLE_LINE && 'Get 5 in a row (horizontal, vertical, or diagonal) to win!'}
+              {mode === WIN_PATTERNS.BLACKOUT && 'Mark all 25 cells to win!'}
+              {mode === WIN_PATTERNS.FOUR_CORNERS && 'Mark all 4 corners to win!'}
+              {mode === WIN_PATTERNS.X_PATTERN && 'Complete an X pattern to win!'}
+              {mode === WIN_PATTERNS.PLUS_PATTERN && 'Complete a + (plus) pattern to win!'}
+            </p>
+          </div>
         </div>
       </div>
 
